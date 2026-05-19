@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่หูเกดาก - Ultra Super Engine v8.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- DESIGN SYSTEM & VARIABLES --- */
+        :root {
+            --bg-main: #060608;
+            --bg-card: #111115;
+            --bg-input: #1a1a22;
+            --border-neon: #00ff88;
+            --border-soft: #272732;
+            --text-main: #f4f4f5;
+            --text-muted: #71717a;
+            --accent-gold: #ffd700;
+            --accent-pink: #ff007f;
+            --shadow-neon: rgba(0, 255, 136, 0.3);
+        }
+
+        .cyber-pink-mode {
+            --bg-main: #140711;
+            --bg-card: #250d20;
+            --bg-input: #3a1532;
+            --border-neon: #ff007f;
+            --border-soft: #4a1b40;
+            --text-main: #ffffff;
+            --text-muted: #a67c9c;
+            --shadow-neon: rgba(255, 0, 127, 0.4);
+        }
+
+        /* --- GLOBAL STYLE RESET --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Kanit', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px 10px 80px 10px;
+            transition: background-color 0.4s, color 0.4s;
+        }
+
+        /* --- LAYOUT CONTAINER --- */
+        .app-container {
+            width: 100%;
+            max-width: 520px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* --- APPLICATION HEADER --- */
+        header {
+            background: linear-gradient(145deg, var(--bg-card), #0a0a0d);
+            border: 1px solid var(--border-soft);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        header h1 {
+            color: var(--border-neon);
+            font-size: 2.3rem;
+            font-weight: 800;
+            text-shadow: 0 0 15px var(--shadow-neon);
+            letter-spacing: 1px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        .header-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .btn-small {
+            background: var(--bg-input);
+            border: 1px solid var(--border-soft);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-small:hover {
+            border-color: var(--border-neon);
+        }
+
+        /* --- NOTIFICATION TOAST SYSTEM --- */
+        #toast-layer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast-card {
+            background: #18181f;
+            color: #ffffff;
+            border-left: 4px solid var(--border-neon);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            font-size: 0.85rem;
+            min-width: 280px;
+            max-width: 350px;
+            pointer-events: auto;
+            animation: slideInRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* --- AUTHENTICATION OVERLAY --- */
+        .auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(4, 4, 6, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 24px;
+            padding: 35px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            text-align: center;
+        }
+
+        .auth-card h2 {
+            font-size: 1.8rem;
+            color: var(--border-neon);
+            margin-bottom: 8px;
+        }
+
+        .auth-card p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            padding-left: 4px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .input-field:focus {
+            border-color: var(--border-neon);
+            box-shadow: 0 0 10px var(--shadow-neon);
+        }
+
+        .btn-block {
+            width: 100%;
+            background: var(--border-neon);
+            color: #000000;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px var(--shadow-neon);
+        }
+
+        .btn-block:hover {
+            transform: translateY(-2px);
+            background: #00e67a;
+        }
+
+        /* --- DASHBOARD & PROFILE CARD --- */
+        .profile-container {
+            background: linear-gradient(135deg, var(--bg-card), #171721);
+            border: 1px solid var(--border-soft);
+            border-radius: 24px;
+            padding: 22px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-main {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .avatar-container {
+            position: relative;
+            width: 85px;
+            height: 85px;
+        }
+
+        .profile-avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--border-neon);
+            background: #222;
+        }
+
+        .profile-meta {
+            flex-grow: 1;
+        }
+
+        .user-identity {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .user-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .badge-rank {
+            background: linear-gradient(90deg, #ff0055, #ff5500);
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            text-transform: uppercase;
+        }
+
+        .user-title {
+            font-size: 0.75rem;
+            color: var(--accent-gold);
+            margin-top: 2px;
+            font-weight: bold;
+        }
+
+        .profile-counters {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .counter-item {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .counter-item span {
+            color: var(--border-neon);
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        /* EXP Progress Bar */
+        .exp-section {
+            margin-top: 15px;
+        }
+
+        .exp-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .exp-track {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-input);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .exp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--border-neon), #00bfff);
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+
+        /* --- SHOP ARCHITECTURE --- */
+        .shop-drawer {
+            margin-top: 15px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-soft);
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .shop-header {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .shop-grid {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .shop-card {
+            background: var(--bg-input);
+            border: 1px solid var(--border-soft);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .shop-card:hover {
+            border-color: var(--accent-gold);
+        }
+
+        /* --- POST CREATOR ENGINE --- */
+        .creator-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 24px;
+            padding: 20px;
+        }
+
+        .dropzone-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-input);
+            border: 2px dashed var(--border-soft);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+            color: var(--border-neon);
+            gap: 6px;
+        }
+
+        .dropzone-label:hover {
+            border-color: var(--border-neon);
+            background: rgba(0, 255, 136, 0.02);
+        }
+
+        .preview-frame {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            max-height: 250px;
+        }
+
+        .preview-img-render {
+            max-width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+        }
+
+        .caption-area {
+            width: 100%;
+            height: 80px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            padding: 12px;
+            color: #ffffff;
+            resize: none;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .caption-area:focus {
+            border-color: var(--border-neon);
+        }
+
+        /* --- FEED ENGINE ARCHITECTURE --- */
+        .feed-filter-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: -5px;
+        }
+
+        .search-box {
+            flex-grow: 1;
+            padding: 10px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            color: white;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: var(--border-neon);
+        }
+
+        .feed-stream {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .post-owner-zone {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .owner-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #222;
+        }
+
+        .owner-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .owner-title-tag {
+            font-size: 0.65rem;
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        .media-container {
+            width: 100%;
+            background: #09090b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .post-media-render {
+            width: 100%;
+            max-height: 500px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .post-interactive-panel {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--bg-input);
+        }
+
+        .interaction-cluster {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn-action {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-action.active-liked {
+            color: #ef4444;
+            animation: pulseEffect 0.3s ease-in-out;
+        }
+
+        .btn-delete-post {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .caption-container {
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--bg-input);
+            line-height: 1.4;
+        }
+
+        /* COMMENT COMPONENT */
+        .comments-dock {
+            background: rgba(0,0,0,0.15);
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .comment-node {
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .comment-author {
+            font-weight: 700;
+            color: var(--border-neon);
+            margin-right: 6px;
+        }
+
+        .sticker-ribbon {
+            display: flex;
+            gap: 6px;
+            padding: 6px 16px;
+            background: var(--bg-card);
+            overflow-x: auto;
+            border-top: 1px solid var(--bg-input);
+        }
+
+        .sticker-pill {
+            background: var(--bg-input);
+            border: 1px solid var(--border-soft);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .comment-box-form {
+            display: flex;
+            background: var(--bg-input);
+            border-top: 1px solid var(--border-soft);
+        }
+
+        .comment-input-field {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            padding: 14px;
+            color: #ffffff;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .comment-submit-btn {
+            background: transparent;
+            border: none;
+            color: var(--border-neon);
+            padding: 0 16px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        /* --- GLOBAL REALTIME CHAT ROOM --- */
+        .chat-room-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-soft);
+            border-radius: 24px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-scroller {
+            height: 200px;
+            overflow-y: auto;
+            background: #09090c;
+            border-radius: 14px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-line {
+            font-size: 0.8rem;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .chat-user-tag {
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .chat-input-pack {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-box-input {
+            flex-grow: 1;
+            background: var(--bg-input);
+            border: 1px solid var(--border-soft);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: white;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .chat-box-input:focus {
+            border-color: var(--border-neon);
+        }
+
+        .chat-btn-send {
+            background: var(--border-neon);
+            color: #000;
+            border: none;
+            padding: 0 16px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* --- ANIMATIONS TIMELINE --- */
+        @keyframes slideInRight {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes pulseEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+            100% { transform: scale(1); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast-layer"></div>
+
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-card">
+            <h2>เกดาก คอนเนค 🚀</h2>
+            <p id="authSubtitle">แพลตฟอร์มโซเชียลมีเดียของคนจริง v8.0</p>
+            
+            <div class="form-group">
+                <label for="regUser">ชื่อผู้ใช้งาน (Username)</label>
+                <input type="text" id="regUser" class="input-field" placeholder="ตัวอย่าง: Tawan_Goat">
+            </div>
+            
+            <div class="form-group">
+                <label for="regPass">รหัสผ่านบัญชี (Password)</label>
+                <input type="password" id="regPass" class="input-field" placeholder="ป้อนรหัสผ่านของคุณ...">
+            </div>
+
+            <button class="btn-block" onclick="processAuthentication()">เข้าสู่ระบบ / เริ่มต้นใช้งาน</button>
+            <div style="font-size:0.7rem; color:var(--text-muted); margin-top:15px;">*ระบบจำลองฐานข้อมูลไว้ในเครื่องคอมพิวเตอร์ของคุณปลอดภัย 100%</div>
+        </div>
+    </div>
+
+    <div class="app-container" id="mainAppLayer" style="display: none;">
+        
+        <header>
+            <h1>คู่หูเกดาก 🪐</h1>
+            <p>ระบบนิเวศจำลองเครือข่ายสังคมออนไลน์ฉบับ Super Core</p>
+            <div class="header-controls">
+                <button class="btn-small" onclick="switchThemeMode()">🌗 สลับโหมดสี</button>
+                <button class="btn-small" style="color: #ff4444;" onclick="wipeDatabaseEngine()">🧹 ล้างข้อมูลระบบ</button>
+                <button class="btn-small" onclick="triggerSignOut()">🚪 สลับบัญชี</button>
+            </div>
+        </header>
+
+        <div class="profile-container">
+            <div class="profile-main">
+                <div class="avatar-container">
+                    <img src="https://placehold.co/150x150/1a1a22/00ff88?text=GOAT" id="dashboardAvatar" class="profile-avatar">
+                </div>
+                <div class="profile-meta">
+                    <div class="user-identity">
+                        <span class="user-name" id="dashboardName">...</span>
+                        <span class="badge-rank" id="dashboardRank">เด็กเกดาก</span>
+                    </div>
+                    <div class="user-title" id="dashboardTitle">ฉายา: วัยรุ่นสร้างตัว</div>
+                    
+                    <div class="profile-counters">
+                        <div class="counter-item">รูปฟีด: <span id="cntPosts">0</span></div>
+                        <div class="counter-item">หัวใจรวม: <span id="cntLikes">0</span></div>
+                        <div class="counter-item">แต้มเกดาก: <span id="cntPoints" style="color:var(--accent-gold);">0</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shop-drawer">
+                <div class="shop-header">
+                    <span>🛒 ศูนย์แลกเปลี่ยนฉายา & กรอบนีออน</span>
+                    <span style="color: var(--text-muted);">ใช้แต้มสะสมแลกได้ทันที</span>
+                </div>
+                <div class="shop-grid">
+                    <div class="shop-card" onclick="purchaseItem('title', 'ตัวตึงขอนแก่น', 0)">
+                        <span style="color:var(--border-neon);">⚡ ฉายา: ตัวตึงขอนแก่น</span>
+                        <span style="color:var(--text-muted);">ฟรี</span>
+                    </div>
+                    <div class="shop-card" onclick="purchaseItem('title', 'มหาเทพเกดาก 👑', 150)">
+                        <span style="color:var(--accent-gold);">👑 ฉายา: มหาเทพเกดาก</span>
+                        <span style="color:var(--accent-gold);">ใช้ 150 แต้ม</span>
+                    </div>
+                    <div class="shop-card" onclick="purchaseItem('border', '#ff007f', 200)">
+                        <span style="color:var(--accent-pink);">💖 กรอบ: ชมพูไซเบอร์</span>
+                        <span style="color:var(--accent-pink);">ใช้ 200 แต้ม</span>
+                    </div>
+                    <div class="shop-card" onclick="purchaseItem('border', '#ffd700', 400)">
+                        <span style="color:var(--accent-gold);">🏆 กรอบ: ทองคำในตำนาน</span>
+                        <span style="color:var(--accent-gold);">ใช้ 400 แต้ม</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="exp-section">
+                <div class="exp-labels">
+                    <span id="txtLevelDisplay">เลเวล: 1</span>
+                    <span id="txtExpDisplay">0 / 100 EXP</span>
+                </div>
+                <div class="exp-track">
+                    <div class="exp-fill" id="barExpFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="creator-container">
+            <input type="file" id="mediaUploader" accept="image/*" style="display: none;" onchange="processMediaSelection(this)">
+            <div class="dropzone-label" onclick="document.getElementById('mediaUploader').click()" id="uploadTriggerBtn">
+                <span>📸 แทรกรูปภาพฟีดเกดากของคุณ</span>
+                <span style="font-size:0.75rem; color:var(--text-muted); font-weight: normal;">คลิกที่นี่เพื่อเลือกไฟล์ภาพจากเครื่อง</span>
+            </div>
+            
+            <div class="preview-frame" id="mediaPreviewFrame">
+                <img src="" id="targetMediaPreview" class="preview-img-render">
+            </div>
+
+            <textarea id="feedCaptionField" class="caption-area" placeholder="เขียนแคปชันสุดตึงประกอบภาพนี้..."></textarea>
+            <button class="btn-block" style="margin-top:15px;" onclick="commitPostToFeedEngine()">แชร์ข้อมูลลงฟีดเกดาก</button>
+        </div>
+
+        <div class="feed-filter-bar">
+            <input type="text" class="search-box" id="feedSearchBox" placeholder="🔍 ค้นหาโพสต์ด้วยชื่อผู้ใช้งาน..." oninput="filterFeedStream()">
+        </div>
+
+        <div class="feed-stream" id="feedStreamRenderBox"></div>
+
+        <div class="chat-room-card">
+            <div class="shop-header" style="color:#38bdf8;">💬 ห้องแชทโลกเกดากด่วน (Live Chat Simulator)</div>
+            <div class="chat-scroller" id="globalChatScroller"></div>
+            <div class="chat-input-pack">
+                <input type="text" class="chat-box-input" id="globalChatInputField" placeholder="พิมพ์ข้อความส่งเข้าแชทโลก..." onkeypress="if(event.key === 'Enter') dispatchGlobalChatMessage()">
+                <button class="chat-btn-send" onclick="dispatchGlobalChatMessage()">ส่ง</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- CENTRAL CORE STATE MANAGEMENT ---
+        let appState = {
+            activeUser: null,
+            cachedImageBase64: "", // ตัวแปร Global ชั่วคราวป้องกันบั๊กอ่านไฟล์ภาพหลุด
+            filterKeyword: ""
+        };
+
+        // Simulated Database Constants
+        const BOTS = [
+            { name: "สายหมอบขอนแก่น 🏍️", lines: ["โพสต์รูปอย่างตึงเลยพี่ชาย", "ขอแต้มหน่อยครับจะไปซื้อกรอบทอง", "ระบบแชทโลก v8.0 โคตรไว!"] },
+            { name: "ตัวตึงระนอง 🔥", lines: ["มีใครให้ตึงกว่านี้ไหมในย่านนี้", "ดันฟีดให้กูทีเพื่อน", "กดหัวใจให้รูปกูหน่อยยย"] },
+            { name: "สหายเกดากระบบบอท 🤖", lines: ["ระบบทำงานปกติ ยินดีต้อนรับทุกคนครับ", "แชร์รูปกันเยอะๆ แลกฉายาเท่ๆ", "ทักทายวัยรุ่นเกดากทุกคน!"] }
+        ];
+
+        // --- CORE APPLICATION LIFECYCLE ---
+        document.addEventListener("DOMContentLoaded", () => {
+            executeSessionVerification();
+            if (localStorage.getItem("kd_theme_mode") === "pink") {
+                document.body.classList.add("cyber-pink-mode");
+            }
+            // เริ่มการทำงานระบบบอทแชทแบบ Realtime ทุกๆ 10 วินาที
+            setInterval(executeBotSimulation, 10000);
+        });
+
+        function pushNotificationToast(message) {
+            const dock = document.getElementById("toast-layer");
+            const toast = document.createElement("div");
+            toast.className = "toast-card";
+            toast.innerText = message;
+            dock.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3500);
+        }
+
+        function switchThemeMode() {
+            document.body.classList.toggle("cyber-pink-mode");
+            const isActivePink = document.body.classList.contains("cyber-pink-mode");
+            localStorage.setItem("kd_theme_mode", isActivePink ? "pink" : "dark");
+            pushNotificationToast("ปรับเปลี่ยนสไตล์สกินแอปเรียบร้อย 🌓");
+        }
+
+        // --- AUTHENTICATION CONTROLLER ---
+        function processAuthentication() {
+            const userRaw = document.getElementById("regUser").value.trim();
+            const passRaw = document.getElementById("regPass").value.trim();
+
+            if (!userRaw || !passRaw) {
+                alert("กรุณากรอกข้อมูล Username และ Password ให้ครบถ้วนก่อนเข้าใช้งานเพื่อน!");
+                return;
+            }
+
+            let databaseAccounts = JSON.parse(localStorage.getItem("kd_db_accounts") || "{}");
+
+            if (!databaseAccounts[userRaw]) {
+                // สมัครสมาชิกอัตโนมัติหากไม่พบข้อมูลใน Local Storage Database
+                databaseAccounts[userRaw] = {
+                    username: userRaw,
+                    password: passRaw,
+                    points: 0,
+                    exp: 0,
+                    borderColor: "#00ff88",
+                    customTitle: "วัยรุ่นสร้างตัว",
+                    avatar: "https://placehold.co/150x150/16161f/00ff88?text=" + userRaw.substring(0, 3).toUpperCase()
+                };
+                localStorage.setItem("kd_db_accounts", JSON.stringify(databaseAccounts));
+                pushNotificationToast("สร้างบัญชีใหม่เข้าสู่ระบบเกดากสำเร็จ! 🎉");
+            } else {
+                if (databaseAccounts[userRaw].password !== passRaw) {
+                    alert("รหัสผ่านไม่ถูกต้อง! ตรวจสอบความถูกต้องอีกครั้ง");
+                    return;
+                }
+                pushNotificationToast("ยินดีต้อนรับกลับเข้าสู่ระบบเกดากคอมมูนิตี้! 🪐");
+            }
+
+            appState.activeUser = userRaw;
+            localStorage.setItem("kd_active_session", userRaw);
+            bootApplicationInterface();
+        }
+
+        function executeSessionVerification() {
+            const savedSession = localStorage.getItem("kd_active_session");
+            if (savedSession) {
+                appState.activeUser = savedSession;
+                bootApplicationInterface();
+            }
+        }
+
+        function triggerSignOut() {
+            localStorage.removeItem("kd_active_session");
+            location.reload();
+        }
+
+        function wipeDatabaseEngine() {
+            if (confirm("คุณแน่ใจใช่ไหมที่จะล้างข้อมูลระบบทั้งหมด? โพสต์และคะแนนจะถูกรีเซ็ตใหม่เป็นศูนย์")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function bootApplicationInterface() {
+            document.getElementById("authScreen").style.display = "none";
+            document.getElementById("mainAppLayer").style.display = "flex";
+            refreshProfileDashboard();
+            renderFeedStreamEngine();
+            synchronizeGlobalChatUI();
+        }
+
+        // --- EXP & LEVEL CALCULATOR ENGINE ---
+        function dispatchExperiencePoints(pointsAmount) {
+            let accounts = JSON.parse(localStorage.getItem("kd_db_accounts") || "{}");
+            if (!accounts[appState.activeUser]) return;
+
+            let currentExp = accounts[appState.activeUser].exp || 0;
+            let oldLevel = Math.floor(currentExp / 100) + 1;
+            
+            currentExp += pointsAmount;
+            let newLevel = Math.floor(currentExp / 100) + 1;
+
+            accounts[appState.activeUser].exp = currentExp;
+            localStorage.setItem("kd_db_accounts", JSON.stringify(accounts));
+
+            if (newLevel > oldLevel) {
+                pushNotificationToast(`🆙 ยินดีด้วยคุณเลเวลอัป! ตอนนี้เลเวล ${newLevel} แล้ว ตึงมาก!`);
+            }
+
+            refreshProfileDashboard();
+        }
+
+        function rewardCurrencyPoints(pointsAmount) {
+            let accounts = JSON.parse(localStorage.getItem("kd_db_accounts") || "{}");
+            if (accounts[appState.activeUser]) {
+                accounts[appState.activeUser].points = (accounts[appState.activeUser].points || 0) + pointsAmount;
+                localStorage.setItem("kd_db_accounts", JSON.stringify(accounts));
+                refreshProfileDashboard();
+            }
+        }
+
+        // --- DASHBOARD CONTROLLER ---
+        function refreshProfileDashboard() {
+            let accounts = JSON.parse(localStorage.getItem("kd_db_accounts") || "{}");
+            let myData = accounts[appState.activeUser] || {};
+            let allFeedData = JSON.parse(localStorage.getItem("kd_db_posts") || "[]");
+
+            let myPostsCount = allFeedData.filter(p => p.author === appState.activeUser).length;
+            let totalLikesCount = 0;
+            allFeedData.forEach(p => {
+                if (p.author === appState.activeUser && p.likes) {
+                    totalLikesCount += p.likes.length;
+                }
+            });
+
+            let currentExp = myData.exp || 0;
+            let currentLevel = Math.floor(currentExp / 100) + 1;
+            let relativeExp = currentExp % 100;
+
+            let calculationsRank = "เด็กเกดาก";
+            if (currentLevel >= 3 && currentLevel < 6) calculationsRank = "คู่หูตัวตึง 🔥";
+            if (currentLevel >= 6) calculationsRank = "ผู้บริหารเกดาก 👑";
+
+            // อัปเดตอินเตอร์เฟสโมดูลโปรไฟล์
+            document.getElementById("dashboardName").innerText = appState.activeUser;
+            document.getElementById("dashboardAvatar").src = myData.avatar || "";
+            document.getElementById("dashboardAvatar").style.borderColor = myData.borderColor || "#00ff88";
+            document.getElementById("dashboardTitle").innerText = "ฉายาปัจจุบัน: " + (myData.customTitle || "วัยรุ่นสร้างตัว");
+            document.getElementById("dashboardRank").innerText = calculationsRank;
+            
+            document.getElementById("cntPosts").innerText = myPostsCount;
+            document.getElementById("cntLikes").innerText = totalLikesCount;
+            document.getElementById("cntPoints").innerText = myData.points || 0;
+
+            document.getElementById("txtLevelDisplay").innerText = `เลเวล: ${currentLevel}`;
+            document.getElementById("txtExpDisplay").innerText = `${relativeExp} / 100 EXP`;
+            document.getElementById("barExpFill").style.width = `${relativeExp}%`;
+        }
+
+        // --- ECONOMY SHOP SYSTEM ---
+        function purchaseItem(type, value, cost) {
+            let accounts = JSON.parse(localStorage.getItem("kd_db_accounts") || "{}");
+            let myWallet = accounts[appState.activeUser].points || 0;
+
+            if (myWallet < cost) {
+                alert("แต้มเกดากไม่พอครับเพื่อน! ไปร่วมกิจกรรม โพสต์รูปภาพ หรือคอมเมนต์เพื่อสะสมแต้มเพิ่มก่อน");
+                return;
+            }
+
+            accounts[appState.activeUser].points = myWallet - cost;
+
+            if (type === "title") {
+                accounts[appState.activeUser].customTitle = value;
+                pushNotificationToast(`สวมใส่ฉายาใหม่ [${value}] เรียบร้อย! ✨`);
+            } else if (type === "border") {
+                accounts[appState.activeUser].borderColor = value;
+                pushNotificationToast(`เปลี่ยนกรอบนีออนโปรไฟล์สำเร็จ! 🎖️`);
+            }
+
+            localStorage.setItem("kd_db_accounts", JSON.stringify(accounts));
+            refreshProfileDashboard();
+            renderFeedStreamEngine();
+        }
+
+        // --- STABLE MEDIA STORAGE HANDLER (แก้บั๊กรูปไม่ขึ้นอย่างเด็ดขาด) ---
+        function processMediaSelection(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    // ล็อกฐานข้อมูลรูปภาพลงใน State หลัก ป้องกันค่าสูญหาย
+                    appState.cachedImageBase64 = e.target.result;
+                    
+                    const previewElement = document.getElementById("targetMediaPreview");
+                    previewElement.src = e.target.result;
+                    document.getElementById("mediaPreviewFrame").style.display = "block";
+                    document.getElementById("uploadTriggerBtn").innerText = "🔄 เปลี่ยนภาพที่เลือกไว้";
+                    pushNotificationToast("เตรียมโครงสร้างไฟล์ภาพเรียบร้อย 📸");
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function commitPostToFeedEngine() {
+            const textContent = document.getElementById("feedCaptionField").value.trim();
+
+            if (!appState.cachedImageBase64) {
+                alert("เกิดข้อผิดพลาด: คุณต้องเลือกแทรกไฟล์รูปภาพก่อนเปิดแชร์ลงฟีดเกดากดิเพื่อน!");
+                return;
+            }
+
+            let postsCollection = JSON.parse(localStorage.getItem("kd_db_posts") || "[]");
+            
+            const payload = {
+                id: Date.now(),
+                author: appState.activeUser,
+                image: appState.cachedImageBase64, // ดึงข้อมูลจาก Global Memory State โดยตรง
+                caption: textContent,
+                likes: [],
+                comments: []
+            };
+
+            postsCollection.unshift(payload);
+            localStorage.setItem("kd_db_posts", JSON.stringify(postsCollection));
+
+            // เคลียร์ฟอร์มเขียนโพสต์
+            appState.cachedImageBase64 = "";
+            document.getElementById("mediaUploader").value = "";
+            document.getElementById("feedCaptionField").value = "";
+            document.getElementById("mediaPreviewFrame").style.display = "none";
+            document.getElementById("uploadTriggerBtn").innerText = "📸 แทรกรูปภาพฟีดเกดากของคุณ";
+
+            pushNotificationToast("แชร์ข้อมูลภาพขึ้นฟีดเกดากสำเร็จเรียบร้อย! +50 EXP 💰");
+            dispatchExperiencePoints(50);
+            rewardCurrencyPoints(50);
+            renderFeedStreamEngine();
+        }
+
+        // --- FEED STREAM ENGINE & RENDERER ---
+        function filterFeedStream() {
+            appState.filterKeyword = document.getElementById("feedSearchBox").value.trim().toLowerCase();
+            renderFeedStreamEngine();
+        }
+
+        function renderFeedStreamEngine() {
+            const container = document.getElementById("feedStreamRenderBox");
+            container.innerHTML = "";
+
+            let postsData = JSON.parse(localStorage.getItem("kd_db_posts") || "[]");
+            let userAccounts = JSON.parse(localStorage.getItem("kd_db_accounts") || "{}");
+
+            // ทำการกรองข้อมูลด้วยฟังก์ชันค้นหาชื่อผู้ใช้
+            if (appState.filterKeyword !== "") {
+                postsData = postsData.filter(p => p.author.toLowerCase().includes(appState.filterKeyword));
+            }
+
+            if (postsData.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:0.85rem;">ไม่พบข้อมูลโพสต์บนฟีดในระบบขณะนี้</div>`;
+                return;
+            }
+
+            postsData.forEach(post => {
+                let currentProfileData = userAccounts[post.author] || {
+                    avatar: "https://placehold.co/150x150/16161f/00ff88?text=?",
+                    borderColor: "#272732",
+                    customTitle: "ผู้เยี่ยมชมทั่วไป"
+                };
+
+                let userHasLiked = post.likes ? post.likes.includes(appState.activeUser) : false;
+                let calculationLikesCount = post.likes ? post.likes.length : 0;
+
+                let compiledCommentsHTML = "";
+                if (post.comments && post.comments.length > 0) {
+                    post.comments.forEach(cmt => {
+                        compiledCommentsHTML += `
+                            <div class="comment-node">
+                                <span class="comment-author">${cmt.user}:</span>
+                                <span>${cmt.text}</span>
+                            </div>
+                        `;
+                    });
+                } else {
+                    compiledCommentsHTML = `<span style="color:var(--text-muted); font-size:0.75rem;">ยังไม่มีการแสดงความเห็นสำหรับภาพนี้</span>`;
+                }
+
+                const blockArticle = document.createElement("article");
+                blockArticle.className = "post-card";
+                blockArticle.innerHTML = `
+                    <div class="post-owner-zone">
+                        <img src="${currentProfileData.avatar}" class="owner-avatar" style="border: 2px solid ${currentProfileData.borderColor};">
+                        <div class="owner-info">
+                            <strong>${post.author}</strong>
+                            <span class="owner-title-tag">${currentProfileData.customTitle}</span>
+                        </div>
+                    </div>
+                    <div class="media-container">
+                        <img src="${post.image}" class="post-media-render">
+                    </div>
+                    <div class="post-interactive-panel">
+                        <div class="interaction-cluster">
+                            <button class="btn-action ${userHasLiked ? 'active-liked' : ''}" onclick="dispatchLikeAction(${post.id})">
+                                ${userHasLiked ? '❤️' : '🤍'} <span>${calculationLikesCount}</span>
+                            </button>
+                            <button class="btn-action" onclick="document.getElementById('comment-box-focus-${post.id}').focus()">💬</button>
+                        </div>
+                        ${post.author === appState.activeUser ? `<button class="btn-delete-post" onclick="dispatchDeleteAction(${post.id})">🗑️ ลบโพสต์</button>` : ''}
+                    </div>
+                    <div class="caption-container">
+                        <strong>${post.author} :</strong> ${post.caption || "ไม่มีแคปชันคำบรรยายสำหรับภาพนี้"}
+                    </div>
+                    <div class="comments-dock">${compiledCommentsHTML}</div>
+                    
+                    <div class="sticker-ribbon">
+                        <div class="sticker-pill" onclick="dispatchStickerComment(${post.id}, '🔥 ตัวตึงจัดพี่ชาย!')">🔥 ตัวตึง</div>
+                        <div class="sticker-pill" onclick="dispatchStickerComment(${post.id}, '⚡ เฉียบแหลม!')">⚡ เฉียบ</div>
+                        <div class="sticker-pill" onclick="dispatchStickerComment(${post.id}, '🤣 เกดากกกก!')">🤣 เกดากก</div>
+                        <div class="sticker-pill" onclick="dispatchStickerComment(${post.id}, '👀 อุ้ย!')">👀 อุ้ย</div>
+                    </div>
+
+                    <div class="comment-box-form">
+                        <input type="text" class="comment-input-field" id="comment-box-focus-${post.id}" placeholder="เขียนคำวิจารณ์ภาพของคุณ...">
+                        <button class="comment-submit-btn" onclick="commitCommentForm(${post.id})">ส่งคีย์</button>
+                    </div>
+                `;
+                container.appendChild(blockArticle);
+            });
+        }
+
+        function dispatchLikeAction(id) {
+            let posts = JSON.parse(localStorage.getItem("kd_db_posts") || "[]");
+            let accounts = JSON.parse(localStorage.getItem("kd_db_accounts") || "{}");
+            
+            posts = posts.map(p => {
+                if (p.id === id) {
+                    if (!p.likes) p.likes = [];
+                    let position = p.likes.indexOf(appState.activeUser);
+                    if (position === -1) {
+                        p.likes.push(appState.activeUser);
+                        dispatchExperiencePoints(5);
+                        // ถ้าคนอื่นมากดใจให้เรา เราจะได้แต้มโบนัสระบบเศรษฐกิจเพิ่ม
+                        if (p.author !== appState.activeUser && accounts[p.author]) {
+                            accounts[p.author].points = (accounts[p.author].points || 0) + 10;
+                        }
+                    } else {
+                        p.likes.splice(position, 1);
+                    }
+                }
+                return p;
+            });
+
+            localStorage.setItem("kd_db_posts", JSON.stringify(posts));
+            localStorage.setItem("kd_db_accounts", JSON.stringify(accounts));
+            refreshProfileDashboard();
+            renderFeedStreamEngine();
+        }
+
+        function commitCommentForm(id) {
+            const targetInput = document.getElementById(`comment-box-focus-${id}`);
+            const inputVal = targetInput.value.trim();
+            if (!inputVal) return;
+
+            executeCommentInsertion(id, inputVal);
+            targetInput.value = "";
+        }
+
+        function dispatchStickerComment(id, stickerString) {
+            executeCommentInsertion(id, stickerString);
+        }
+
+        function executeCommentInsertion(id, text) {
+            let posts = JSON.parse(localStorage.getItem("kd_db_posts") || "[]");
+            posts = posts.map(p => {
+                if (p.id === id) {
+                    if (!p.comments) p.comments = [];
+                    p.comments.push({ user: appState.activeUser, text: text });
+                    
+                    // แจ้งเตือนแบบ Realtime ให้เจ้าของโพสต์รับทราบข้อมูล
+                    if (p.author === appState.activeUser && appState.activeUser !== p.author) {
+                        pushNotificationToast(`🔔 โพสต์ของคุณได้รับการตอบกลับคอมเมนต์ใหม่จากผู้ใช้อื่นแล้ว!`);
+                    }
+                }
+                return p;
+            });
+            localStorage.setItem("kd_db_posts", JSON.stringify(posts));
+            dispatchExperiencePoints(10);
+            rewardCurrencyPoints(10);
+            renderFeedStreamEngine();
+        }
+
+        function dispatchDeleteAction(id) {
+            if (confirm("คุณแน่ใจใช่ไหมว่าจะลบโพสต์รูปภาพนี้ออกจากระบบฟีดเกดากถาวร?")) {
+                let posts = JSON.parse(localStorage.getItem("kd_db_posts") || "[]");
+                posts = posts.filter(p => p.id !== id);
+                localStorage.setItem("kd_db_posts", JSON.stringify(posts));
+                refreshProfileDashboard();
+                renderFeedStreamEngine();
+                pushNotificationToast("ลบข้อมูลโพสต์ออกจากโครงสร้างเรียบร้อย");
+            }
+        }
+
+        // --- GLOBAL REALTIME CHAT ROOM CONTROLLER ---
+        function synchronizeGlobalChatUI() {
+            const viewer = document.getElementById("globalChatScroller");
+            viewer.innerHTML = "";
+
+            let logs = JSON.parse(localStorage.getItem("kd_db_chat_logs") || "[]");
+            if (logs.length === 0) {
+                logs = [{ user: "ระบบเซิร์ฟเวอร์", text: "ยินดีต้อนรับเข้าสู่ช่องทางติดต่อสื่อสารระดับโลกอย่างเป็นทางการ" }];
+            }
+
+            logs.forEach(log => {
+                const row = document.createElement("div");
+                row.className = "chat-line";
+                row.innerHTML = `<span class="chat-user-tag">[${log.user}]:</span> <span>${log.text}</span>`;
+                viewer.appendChild(row);
+            });
+            viewer.scrollTop = viewer.scrollHeight;
+        }
+
+        function dispatchGlobalChatMessage() {
+            const inputNode = document.getElementById("globalChatInputField");
+            const rawMsg = inputNode.value.trim();
+            if (!rawMsg) return;
+
+            let logs = JSON.parse(localStorage.getItem("kd_db_chat_logs") || "[]");
+            logs.push({ user: appState.activeUser, text: rawMsg });
+            localStorage.setItem("kd_db_chat_logs", JSON.stringify(logs));
+            
+            inputNode.value = "";
+            synchronizeGlobalChatUI();
+        }
+
+        function executeBotSimulation() {
+            if (!appState.activeUser) return;
+
+            let pickedBot = BOTS[Math.floor(Math.random() * BOTS.length)];
+            let pickedSentence = pickedBot.lines[Math.floor(Math.random() * pickedBot.lines.length)];
+
+            let logs = JSON.parse(localStorage.getItem("kd_db_chat_logs") || "[]");
+            logs.push({ user: pickedBot.name, text: pickedSentence });
+            localStorage.setItem("kd_db_chat_logs", JSON.stringify(logs));
+            
+            synchronizeGlobalChatUI();
+            pushNotificationToast(`💬 ข้อความใหม่ในแชทโลกจากคุณ ${pickedBot.name}`);
+        }
+    </script>
+</body>
+</html>
